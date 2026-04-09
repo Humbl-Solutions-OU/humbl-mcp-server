@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "humbl-advert": {
+      "command": "npx",
+      "args": ["@humbl-ai/mcp-advert", "--api-key=your-api-key-here"]
+    }
+  }
+}
+
