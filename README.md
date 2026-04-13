@@ -1,6 +1,6 @@
-# Humbl.ai Advert MCP Server
+# Humbl.ai MCP Server
 
-Connect your AI assistant (Claude Desktop, Cursor, Cline, etc.) directly to Humbl.ai's ad research data. Once set up, you can ask questions in plain English and get real ad intelligence back — no dashboards, no exports, no manual queries.
+Connect your AI assistant (Claude Desktop, Cursor, Cline, etc.) directly to Humbl.ai's intelligence data. Once set up, you can ask questions in plain English and get real insights back — no dashboards, no exports, no manual queries.
 
 ## What Can You Do With This?
 
@@ -14,7 +14,13 @@ Once connected, just ask your AI assistant things like:
 
 The assistant handles the rest — it knows which tool to use and how to interpret the results.
 
-## Available Tools
+---
+
+## Available Modules
+
+### Adverts ✅ Available now
+
+PPC and paid media intelligence tools.
 
 | Tool | What It Does |
 |---|---|
@@ -25,6 +31,20 @@ The assistant handles the rest — it knows which tool to use and how to interpr
 | **Brand Lookup** | Has a specific brand appeared in ads in the last 24 hours? |
 | **General Search** | Search the ad database by domain or keyword (last 14 days) |
 | **Live Search** | Real-time ad results — not cached, pulled fresh from the web |
+
+---
+
+## Roadmap
+
+The following modules are planned. Each will add new tools to the same MCP server — no reconfiguration needed when they ship.
+
+| Module | What It Will Cover |
+|---|---|
+| **Top Lists** | SEO and organic search intelligence — top domains, keyword rankings, visibility trends |
+| **Rankings** | Keyword rank tracking — monitor position changes over time for any domain |
+| **Brand Monitoring** | Brand health tracking — mentions, share of voice, competitor movements |
+| **Compliance** | Regulatory monitoring — detect unlicensed operators, flag policy violations |
+| **Game Providers** | Gaming industry intelligence — provider market share, game distribution data |
 
 ---
 
@@ -49,15 +69,15 @@ Check if you have it:
 node --version
 ```
 
-If that shows a version number (18 or higher), you're good. If not, download it from [nodejs.org](https://nodejs.org) and install the LTS version.
+If that shows a version number (18 or higher), you're good. If not, download from [nodejs.org](https://nodejs.org) and install the LTS version.
 
 ### Step 3: Configure Your AI Client
 
-Find your MCP configuration file and add the following block. Replace `your-api-key-here` with the key from Step 1.
+Find your MCP configuration file and add the block below. Replace `your-api-key-here` with the key from Step 1.
 
-**Claude Desktop**
+**Claude Desktop config file location:**
 
-| Platform | Config file location |
+| Platform | Path |
 |---|---|
 | Mac | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
@@ -67,7 +87,7 @@ Find your MCP configuration file and add the following block. Replace `your-api-
 ```json
 {
   "mcpServers": {
-    "humbl-advert": {
+    "humbl": {
       "command": "npx",
       "args": [
         "@humbl-ai/mcp-advert",
@@ -108,7 +128,7 @@ Point your MCP client at the local build instead of npx:
 ```json
 {
   "mcpServers": {
-    "humbl-advert": {
+    "humbl": {
       "command": "node",
       "args": [
         "/path/to/humbl-mcp-server/dist/index.js",
@@ -145,4 +165,4 @@ The Humbl.ai API is unreachable. Check your internet connection or ask your admi
 Node.js isn't installed or isn't in your PATH. Reinstall from [nodejs.org](https://nodejs.org).
 
 **Tools don't appear in my AI client**
-Restart the client after editing the config. Check for JSON syntax errors in the config file (missing commas, unclosed brackets).
+Restart the client after editing the config. Check for JSON syntax errors (missing commas, unclosed brackets).
