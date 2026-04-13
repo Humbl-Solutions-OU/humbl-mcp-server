@@ -48,41 +48,31 @@ The following modules are planned. Each will add new tools to the same MCP serve
 
 ---
 
-## Setup Guide
+## Installation
 
-### Step 1: Get an API Key
-
-Ask your Humbl.ai administrator to create an API key for you at:
-
+You'll need an API key first. Ask your Humbl.ai administrator to generate one at:
 ```
 https://humbl.ai/admin/mcp/mcpapikey/
 ```
 
-They'll give you a key that looks like: `abc123def456...`
+### Option A: One-click install (recommended for non-technical users)
 
-Keep this key private — treat it like a password.
+1. Download the latest `humbl-advert.mcpb` file from the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases)
+2. Open the `.mcpb` file — Claude Desktop will launch the installer
+3. Enter your API key when prompted — it's stored securely in your OS keychain
+4. Done. The Humbl tools are now available in your AI assistant
 
-### Step 2: Install Node.js (if you don't have it)
+### Option B: Manual JSON config
 
-Check if you have it:
+For clients that don't yet support `.mcpb` (Cursor, Cline, custom setups).
+
+**Step 1** — Make sure Node.js 18+ is installed:
 ```
 node --version
 ```
+If not installed, get it from [nodejs.org](https://nodejs.org).
 
-If that shows a version number (18 or higher), you're good. If not, download from [nodejs.org](https://nodejs.org) and install the LTS version.
-
-### Step 3: Configure Your AI Client
-
-Find your MCP configuration file and add the block below. Replace `your-api-key-here` with the key from Step 1.
-
-**Claude Desktop config file location:**
-
-| Platform | Path |
-|---|---|
-| Mac | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
-
-**Cursor / Cline / other clients** — check your client's MCP settings section.
+**Step 2** — Add this to your MCP config file, replacing `your-api-key-here`:
 
 ```json
 {
@@ -98,15 +88,21 @@ Find your MCP configuration file and add the block below. Replace `your-api-key-
 }
 ```
 
-### Step 4: Restart Your AI Client
+**Config file locations:**
 
-Close and reopen the app. The Humbl tools will appear automatically.
+| Client | Path |
+|---|---|
+| Claude Desktop (Mac) | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Desktop (Windows) | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Cursor / Cline | Check your client's MCP settings section |
+
+**Step 3** — Restart your AI client. The Humbl tools will appear automatically.
 
 ---
 
 ## For Developers
 
-### Local Development Setup
+### Local Development
 
 ```bash
 git clone https://github.com/Humbl-Solutions-OU/humbl-mcp-server.git
@@ -119,12 +115,7 @@ Run against a local Django server:
 npm run dev -- --api-key=your-key --api-url=http://localhost:8000
 ```
 
-Build:
-```bash
-npm run build
-```
-
-Point your MCP client at the local build instead of npx:
+Point your MCP client at the local build:
 ```json
 {
   "mcpServers": {
@@ -140,13 +131,14 @@ Point your MCP client at the local build instead of npx:
 }
 ```
 
-### Publishing
+### Releasing
+
+Tag a version to trigger the release workflow — it builds, packs the `.mcpb`, and publishes it to GitHub Releases automatically:
 
 ```bash
-npm publish
+git tag v1.0.0
+git push origin v1.0.0
 ```
-
-The package is scoped to `@humbl-ai` and published as restricted. Users need npm org access to install via `npx`.
 
 ---
 
