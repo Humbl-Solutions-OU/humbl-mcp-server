@@ -1,10 +1,9 @@
 {
-  "manifest_version": "0.3",
+  "manifest_version": "0.2",
   "name": "humbl-advert",
   "display_name": "Humbl.ai Advert Intelligence",
   "version": "1.0.0",
   "description": "Ask your AI assistant about PPC competitors, market share, brand appearances, and live ad searches — powered by Humbl.ai data.",
-  "long_description": "Connect your AI assistant to Humbl.ai's advert intelligence platform. Query ad exposure, find PPC competitors, track brand appearances, search the ad database, and run live ad searches — all in plain English.\n\n**Available tools:**\n- Market Share — top domains by ad exposure for a location\n- Competitors — who's advertising for a keyword and where\n- Domain Data — full ad exposure history for a domain\n- PPC Overview — recently detected PPC sites for a location\n- Brand Lookup — recent brand appearances in ad listings\n- General Search — search the ad database by domain or keyword\n- Live Search — real-time ad results via HumblSERP",
   "author": {
     "name": "Humbl Solutions OÜ",
     "url": "https://humbl.ai"
@@ -24,7 +23,8 @@
       "args": [
         "${__dirname}/dist/index.js",
         "--api-key=${user_config.api_key}"
-      ]
+      ],
+      "env": {}
     }
   },
   "user_config": {
@@ -32,8 +32,7 @@
       "type": "string",
       "title": "API Key",
       "description": "Your Humbl.ai API key. Ask your administrator to generate one at https://humbl.ai/admin/mcp/mcpapikey/",
-      "required": true,
-      "secret": true
+      "required": true
     }
   },
   "compatibility": {
@@ -42,13 +41,13 @@
       "node": ">=18.0.0"
     }
   },
-  "tools": {
-    "market_share": { "description": "Top domains by ad exposure for a location" },
-    "competitors": { "description": "Top advertisers for a keyword, location, and device" },
-    "domain_data": { "description": "Ad exposure history for a specific domain" },
-    "ppc_overview": { "description": "Recently detected PPC sites for a location" },
-    "brand_lookup": { "description": "Recent brand appearances in ad listings" },
-    "general_search": { "description": "Search the ad database by domain or keyword" },
-    "live_search": { "description": "Real-time ad results via HumblSERP" }
-  }
+  "tools": [
+    { "name": "market_share", "description": "Top domains by ad exposure for a location" },
+    { "name": "competitors", "description": "Top advertisers for a keyword, location, and device" },
+    { "name": "domain_data", "description": "Ad exposure history for a specific domain" },
+    { "name": "ppc_overview", "description": "Recently detected PPC sites for a location" },
+    { "name": "brand_lookup", "description": "Recent brand appearances in ad listings" },
+    { "name": "general_search", "description": "Search the ad database by domain or keyword" },
+    { "name": "live_search", "description": "Real-time ad results via HumblSERP" }
+  ]
 }

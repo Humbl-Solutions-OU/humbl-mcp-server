@@ -18,11 +18,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install all dependencies (needed for build)
         run: npm ci
 
       - name: Build
         run: npm run build
+
+      - name: Remove devDependencies before packing
+        run: npm prune --production
 
       - name: Install mcpb
         run: npm install -g @anthropic-ai/mcpb
