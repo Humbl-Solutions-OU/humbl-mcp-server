@@ -50,37 +50,37 @@ The following modules are planned. Each will add new tools to the same MCP serve
 
 ## Installation
 
-You'll need an API key first. Ask your Humbl.ai administrator to generate one at:
+You'll need an API key first — ask your Humbl.ai administrator to generate one at:
 ```
 https://humbl.ai/admin/mcp/mcpapikey/
 ```
 
-### Option A: One-click install (recommended for non-technical users)
+### Option A: One-click install via `.mcpb` (Claude Desktop only)
 
-1. Download the latest `humbl-advert.mcpb` file from the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases)
-2. Open the `.mcpb` file — Claude Desktop will launch the installer
+1. Go to the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases) and download the latest `humbl-advert-x.x.x.mcpb` file
+2. Double-click the `.mcpb` file — Claude Desktop will launch the installer
 3. Enter your API key when prompted — it's stored securely in your OS keychain
-4. Done. The Humbl tools are now available in your AI assistant
+4. Done. The Humbl tools are now available
 
-### Option B: Manual JSON config
+### Option B: Manual JSON config (Claude Desktop, Cursor, Cline, and others)
 
-For clients that don't yet support `.mcpb` (Cursor, Cline, custom setups).
+**Step 1** — Download the latest release from the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases). The `.mcpb` file is a standard ZIP — rename it to `.zip` and extract it to a permanent location (e.g. `~/humbl-mcp-server/`).
 
-**Step 1** — Make sure Node.js 18+ is installed:
+**Step 2** — Make sure Node.js 18+ is installed:
 ```
 node --version
 ```
 If not installed, get it from [nodejs.org](https://nodejs.org).
 
-**Step 2** — Add this to your MCP config file, replacing `your-api-key-here`:
+**Step 3** — Add this to your MCP config file, replacing the path and API key:
 
 ```json
 {
   "mcpServers": {
     "humbl": {
-      "command": "npx",
+      "command": "node",
       "args": [
-        "@humbl-ai/mcp-advert",
+        "/path/to/humbl-mcp-server/dist/index.js",
         "--api-key=your-api-key-here"
       ]
     }
@@ -94,9 +94,10 @@ If not installed, get it from [nodejs.org](https://nodejs.org).
 |---|---|
 | Claude Desktop (Mac) | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | Claude Desktop (Windows) | `%APPDATA%\Claude\claude_desktop_config.json` |
-| Cursor / Cline | Check your client's MCP settings section |
+| Cursor | Settings → MCP → Edit config |
+| Cline | VS Code settings → Cline → MCP Servers |
 
-**Step 3** — Restart your AI client. The Humbl tools will appear automatically.
+**Step 4** — Restart your AI client. The Humbl tools will appear automatically.
 
 ---
 
@@ -108,6 +109,7 @@ If not installed, get it from [nodejs.org](https://nodejs.org).
 git clone https://github.com/Humbl-Solutions-OU/humbl-mcp-server.git
 cd humbl-mcp-server
 npm install
+npm run build
 ```
 
 Run against a local Django server:
@@ -131,29 +133,31 @@ Point your MCP client at the local build:
 }
 ```
 
-### Releasing
+### Releases
 
-Tag a version to trigger the release workflow — it builds, packs the `.mcpb`, and publishes it to GitHub Releases automatically:
+Push a version tag to trigger the GitHub Actions workflow — it builds the TypeScript, prunes devDependencies, packs the `.mcpb` bundle, and publishes it to GitHub Releases automatically:
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
+The `.mcpb` file will appear on the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases) within a few minutes.
+
 ---
 
 ## Troubleshooting
 
 **"--api-key is required"**
-Make sure `--api-key=your-key` is in the `args` array in your config.
+Check that `--api-key=your-key` is in the `args` array in your config.
 
 **"Invalid or inactive API key"**
-Ask your admin to check the key is active at `/admin/mcp/mcpapikey/`.
+Ask your admin to verify the key is active at `/admin/mcp/mcpapikey/`.
 
 **"Connection refused"**
 The Humbl.ai API is unreachable. Check your internet connection or ask your admin if the server is running.
 
-**"npx command not found"**
+**"node: command not found"**
 Node.js isn't installed or isn't in your PATH. Reinstall from [nodejs.org](https://nodejs.org).
 
 **Tools don't appear in my AI client**
