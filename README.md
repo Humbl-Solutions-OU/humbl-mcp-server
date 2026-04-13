@@ -1,227 +1,124 @@
 # Humbl.ai Advert MCP Server
 
-An MCP (Model Context Protocol) server for accessing Humbl.ai's advert research tools. Works with **any MCP-compatible client** including Claude Desktop, Cline, Cursor, and custom AI agents.
+Connect your AI assistant (Claude Desktop, Cursor, Cline, etc.) directly to Humbl.ai's ad research data. Once set up, you can ask questions in plain English and get real ad intelligence back — no dashboards, no exports, no manual queries.
 
-Provides 7 tools for ad research, PPC analysis, and competitive intelligence.
+## What Can You Do With This?
 
-## Tools Provided
+Once connected, just ask your AI assistant things like:
 
-1. **Market Share** — Top domains by ad exposure for a location
-2. **Competitors** — Top advertisers for a keyword/location over a date range
-3. **Domain Data** — Ad exposure data for a domain across keywords and locations
-4. **PPC Overview** — PPC site monitoring data for a location
-5. **Brand Lookup** — Recent detected brand appearances in ad listings
-6. **General Search** — Database search by domain or keyword (14-day window)
-7. **Live Search** — Real-time ad search via HumblSERP proxy
+- *"Who are the top advertisers for 'casino' in Amsterdam this week?"*
+- *"Show me the market share data for Netherlands on desktop"*
+- *"Has Bet365 shown up in any ads recently?"*
+- *"Search the ad database for anything related to poker"*
+- *"Run a live Google search for 'online casino' ads in Stockholm on mobile"*
 
-## Installation
+The assistant handles the rest — it knows which tool to use and how to interpret the results.
 
-### Prerequisites
-- Node.js 18+
-- An API key from Humbl.ai (create one at `https://humbl.ai/admin/mcp/mcpapikey/`)
+## Available Tools
 
-**No global installation required!** The server runs via `npx` on demand.
+| Tool | What It Does |
+|---|---|
+| **Market Share** | Top 50 domains by ad exposure for a location |
+| **Competitors** | Who's advertising for a keyword, where, and on which device |
+| **Domain Data** | Full ad exposure history for a specific domain |
+| **PPC Overview** | Recently detected PPC sites for a location |
+| **Brand Lookup** | Has a specific brand appeared in ads in the last 24 hours? |
+| **General Search** | Search the ad database by domain or keyword (last 14 days) |
+| **Live Search** | Real-time ad results — not cached, pulled fresh from the web |
 
-## Compatible Clients
+---
 
-This MCP server works with any client that supports the MCP protocol:
+## Setup Guide
 
-- **Claude Desktop** — Anthropic's desktop app
-- **Cline** — VS Code extension for Claude
-- **Cursor IDE** — AI-first code editor
-- **Custom MCP Clients** — Any tool that implements MCP
+### Step 1: Get an API Key
 
-## Configuration
+Ask your Humbl.ai administrator to create an API key for you at:
 
-### For Claude Desktop
+```
+https://humbl.ai/admin/mcp/mcpapikey/
+```
 
-Add to your `mcp.json` configuration file:
+They'll give you a key that looks like: `abc123def456...`
 
-**macOS:** `~/Library/Application Support/Claude/mcp.json`
-**Windows:** `%APPDATA%\Claude\mcp.json`
-**Linux:** `~/.config/Claude/mcp.json`
+Keep this key private — treat it like a password.
 
-#### Production (Using humbl.ai)
+### Step 2: Install Node.js (if you don't have it)
+
+Check if you have it:
+```
+node --version
+```
+
+If that shows a version number (18 or higher), you're good. If not, download it from [nodejs.org](https://nodejs.org) and install the LTS version.
+
+### Step 3: Configure Your AI Client
+
+Find your MCP configuration file and add the following block. Replace `your-api-key-here` with the key from Step 1.
+
+**Claude Desktop**
+
+| Platform | Config file location |
+|---|---|
+| Mac | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+
+**Cursor / Cline / other clients** — check your client's MCP settings section.
 
 ```json
 {
   "mcpServers": {
     "humbl-advert": {
       "command": "npx",
-      "args": ["@humbl-ai/mcp-advert", "--api-key=your-api-key-here"]
+      "args": [
+        "@humbl-ai/mcp-advert",
+        "--api-key=your-api-key-here"
+      ]
     }
   }
 }
 ```
 
-#### Local Development (Using localhost:8000)
+### Step 4: Restart Your AI Client
 
-```json
-{
-  "mcpServers": {
-    "humbl-advert": {
-      "command": "npx",
-      "args": ["@humbl-ai/mcp-advert", "--api-key=your-api-key-here", "--api-url=http://localhost:8000"]
-    }
-  }
-}
-```
+Close and reopen the app. The Humbl tools will appear automatically.
 
-That's it! The server will download and run automatically via `npx`. No `npm install` needed.
+---
 
-### Command Arguments
+## For Developers
 
-- `--api-key=KEY` — Your Humbl.ai API key (required)
-- `--api-url=URL` — API URL (optional, default: `https://humbl.ai`)
-
-### For Cline (VS Code Extension)
-
-Add to your Cline MCP servers configuration:
-
-```json
-{
-  "mcpServers": {
-    "humbl-advert": {
-      "command": "npx",
-      "args": ["@humbl-ai/mcp-advert", "--api-key=your-api-key-here"]
-    }
-  }
-}
-```
-
-### For Cursor IDE
-
-Cursor uses the same MCP configuration format:
-
-```json
-{
-  "mcpServers": {
-    "humbl-advert": {
-      "command": "npx",
-      "args": ["@humbl-ai/mcp-advert", "--api-key=your-api-key-here"]
-    }
-  }
-}
-```
-
-### For Custom MCP Clients
-
-Run directly with command line arguments:
+### Local Development Setup
 
 ```bash
-npx @humbl-ai/mcp-advert --api-key=your-key-here
-```
-
-For local development:
-
-```bash
-npx @humbl-ai/mcp-advert --api-key=your-key-here --api-url=http://localhost:8000
-```
-
-## Usage Examples
-
-Once configured in Claude Desktop, you can ask:
-
-### Market Share
-> "What are the top domains by ad exposure in Amsterdam?"
-- Uses the `market_share` tool with location_id for Amsterdam
-
-### Competitors
-> "Who are the top competitors advertising for 'casino' in Stockholm on mobile?"
-- Uses the `competitors` tool to find advertisers for a specific keyword
-
-### Domain Research
-> "What's the ad exposure data for example.com?"
-- Uses the `domain_data` tool to get cached exposure information
-
-### Brand Tracking
-> "Has Bet365 been detected in ads recently?"
-- Uses the `brand_lookup` tool to find recent brand detections
-
-### General Search
-> "Search for ads mentioning 'poker' in the last 14 days"
-- Uses the `general_search` tool to query the database
-
-### Live Search
-> "Show me live Google ads for 'casino' in Amsterdam on mobile"
-- Uses the `live_search` tool for real-time results
-
-## API Key Management
-
-### Creating an API Key
-
-1. Go to `http://your-humbl-server/admin/mcp/mcpapikey/`
-2. Click "Add MCP API Key"
-3. Enter a descriptive name (e.g., "Claude Desktop")
-4. The key will be auto-generated
-5. Copy the key and add it to your configuration
-
-### Key Security
-
-- API keys are sensitive — treat them like passwords
-- Rotate keys quarterly in production environments
-- If a key is compromised, deactivate it immediately in the admin panel
-- Use environment variables instead of hardcoding keys in config files
-
-## Troubleshooting
-
-### "--api-key is required"
-
-Make sure you've set the `--api-key` parameter in your `mcp.json`:
-
-```json
-{
-  "args": ["@humbl-ai/mcp-advert", "--api-key=your-actual-key-here"]
-}
-```
-
-### "Invalid or inactive MCP API key"
-
-1. Check the key is correct (no extra spaces)
-2. Verify the key is active in `/admin/mcp/mcpapikey/`
-3. Make sure `HUMBL_API_URL` points to the correct server
-
-### "Connection refused"
-
-1. Verify the Humbl.ai API is running: `curl http://localhost:8000/api/mcp/advert/market-share/`
-2. Check `HUMBL_API_URL` matches your server URL
-3. Ensure no firewall blocks the connection
-
-### "location_id not found"
-
-- Check the location ID exists in Humbl.ai
-- Use the `general_search` tool to verify locations
-
-### "npx command not found"
-
-1. Ensure Node.js 18+ is installed: `node --version`
-2. Reinstall Node.js from https://nodejs.org
-3. Try full path: `/usr/local/bin/npx @humbl-ai/mcp-advert`
-
-## Development (Building from Source)
-
-### Clone and Build
-
-```bash
-git clone https://github.com/your-org/humbl.ai.git
-cd humbl.ai/mcp-server
+git clone https://github.com/Humbl-Solutions-OU/humbl-mcp-server.git
+cd humbl-mcp-server
 npm install
+```
+
+Run against a local Django server:
+```bash
+npm run dev -- --api-key=your-key --api-url=http://localhost:8000
+```
+
+Build:
+```bash
 npm run build
 ```
 
-The build process:
-1. Compiles TypeScript to JavaScript
-2. **Obfuscates the output** to prevent reverse engineering
-3. Minifies and encodes string literals
-4. Publishes only the compiled `dist/` folder
-
-### Testing Locally
-
-```bash
-npm run dev
+Point your MCP client at the local build instead of npx:
+```json
+{
+  "mcpServers": {
+    "humbl-advert": {
+      "command": "node",
+      "args": [
+        "/path/to/humbl-mcp-server/dist/index.js",
+        "--api-key=your-key",
+        "--api-url=http://localhost:8000"
+      ]
+    }
+  }
+}
 ```
-
-This runs the unobfuscated TypeScript source for easier debugging.
 
 ### Publishing
 
@@ -229,49 +126,23 @@ This runs the unobfuscated TypeScript source for easier debugging.
 npm publish
 ```
 
-This publishes only the obfuscated compiled code in `dist/`, not the source files.
+The package is scoped to `@humbl-ai` and published as restricted. Users need npm org access to install via `npx`.
 
-## Compatibility
+---
 
-### MCP Protocol
-- Implements the official MCP (Model Context Protocol) standard
-- Compatible with any MCP-compliant client
-- Uses stdin/stdout for communication
-- Proper JSON message framing
+## Troubleshooting
 
-### Humbl.ai API
-- Requires Humbl.ai with MCP advert integration deployed
-- API endpoints: `/api/mcp/advert/{endpoint}/`
-- Authentication: `X-Api-Key` header
-- Response format: JSON
+**"--api-key is required"**
+Make sure `--api-key=your-key` is in the `args` array in your config.
 
-## Security
+**"Invalid or inactive API key"**
+Ask your admin to check the key is active at `/admin/mcp/mcpapikey/`.
 
-### Code Obfuscation
-- The published npm package contains **obfuscated JavaScript only**
-- Source code (TypeScript) is not included in distributions
-- Variable names, string literals, and logic flow are obscured
-- Makes it significantly harder to reverse engineer or extract implementation details
+**"Connection refused"**
+The Humbl.ai API is unreachable. Check your internet connection or ask your admin if the server is running.
 
-### API Key Security
-- API keys are passed via command-line parameters, never hardcoded
-- Keys are never logged or exposed in error messages
-- Use strong, randomly-generated keys from the admin panel
-- Rotate keys immediately if compromised
-- Store keys securely (not in version control)
+**"npx command not found"**
+Node.js isn't installed or isn't in your PATH. Reinstall from [nodejs.org](https://nodejs.org).
 
-### HTTPS by Default
-- Production uses `https://humbl.ai` by default
-- Always verify SSL certificates
-- Use `--api-url` parameter only for trusted local development
-
-## Support
-
-For issues or questions:
-1. Check the troubleshooting section above
-2. Review API documentation: `/docs/mcp/DEPLOYMENT.md`
-3. Contact Humbl.ai support
-
-## License
-
-See LICENSE file in the Humbl.ai repository.
+**Tools don't appear in my AI client**
+Restart the client after editing the config. Check for JSON syntax errors in the config file (missing commas, unclosed brackets).
