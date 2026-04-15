@@ -26,7 +26,6 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import axios, { AxiosInstance } from "axios";
 
 function parseArgs(): { apiKey: string; apiUrl: string } {
   const args = process.argv.slice(2);
@@ -61,93 +60,81 @@ Usage: npx @humblai/mcp-server --api-key=YOUR_KEY [--api-url=URL]
 }
 
 // Wraps all Humbl API calls. Each method maps to one Django endpoint.
+// Uses native fetch (Node 18+) — no external HTTP dependency needed.
 class HumblAdvertClient {
-  private http: AxiosInstance;
+  private baseUrl: string;
+  private headers: Record<string, string>;
 
   constructor(apiKey: string, apiUrl: string) {
-    this.http = axios.create({
-      baseURL: `${apiUrl}/api/mcp/advert`,
-      headers: {
-        "X-Api-Key": apiKey,
-        "Content-Type": "application/json",
-      },
-    });
+    this.baseUrl = `${apiUrl}/api/mcp/advert`;
+    this.headers = {
+      "X-Api-Key": apiKey,
+      "Content-Type": "application/json",
+    };
+  }
+
+  private async get(path: string, params: Record<string, unknown>): Promise<string> {
+    // Filter out undefined/null values so they don't appear as "undefined" in the query string
+    const query = new URLSearchParams(
+      Object.entries(params)
+        .filter(([, v]) => v != null)
+        .reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {} as Record<string, string>)
+    ).toString();
+
+    const url = `${this.baseUrl}${path}${query ? `?${query}` : ""}`;
+
+    const response = await fetch(url, { headers: this.headers });
+    const data = await response.json();
+
+    if (!response.ok) {
+      return JSON.stringify({ error: response.statusText, status: response.status, detail: data });
+    }
+
+    return JSON.stringify(data);
   }
 
   async call(toolName: string, input: Record<string, unknown>): Promise<string> {
     try {
-      let response;
-
       switch (toolName) {
         case "market_share":
-          response = await this.http.get("/market-share/", {
-            params: { location_id: input.location_id },
-          });
-          break;
+          return this.get("/market-share/", { location_id: input.location_id });
 
         case "competitors":
-          response = await this.http.get("/competitors/", {
-            params: {
-              keyword: input.keyword,
-              location: input.location,
-              device: input.device,
-              date_from: input.date_from,
-              date_to: input.date_to,
-            },
+          return this.get("/competitors/", {
+            keyword: input.keyword,
+            location: input.location,
+            device: input.device,
+            date_from: input.date_from,
+            date_to: input.date_to,
           });
-          break;
 
         case "domain_data":
-          response = await this.http.get("/domain-data/", {
-            params: { domain: input.domain, country: input.country },
-          });
-          break;
+          return this.get("/domain-data/", { domain: input.domain, country: input.country });
 
         case "ppc_overview":
-          response = await this.http.get("/ppc-overview/", {
-            params: {
-              location_id: input.location_id,
-              order_by: input.order_by ?? "newest",
-            },
+          return this.get("/ppc-overview/", {
+            location_id: input.location_id,
+            order_by: input.order_by ?? "newest",
           });
-          break;
 
         case "brand_lookup":
-          response = await this.http.get("/brand-lookup/", {
-            params: { brand_name: input.brand_name, country: input.country },
-          });
-          break;
+          return this.get("/brand-lookup/", { brand_name: input.brand_name, country: input.country });
 
         case "general_search":
-          response = await this.http.get("/general-search/", {
-            params: { query: input.query, date: input.date, page: input.page ?? 1 },
-          });
-          break;
+          return this.get("/general-search/", { query: input.query, date: input.date, page: input.page ?? 1 });
 
         case "live_search":
-          response = await this.http.get("/live-search/", {
-            params: {
-              keyword: input.keyword,
-              location: input.location,
-              device: input.device,
-              engine: input.engine,
-            },
+          return this.get("/live-search/", {
+            keyword: input.keyword,
+            location: input.location,
+            device: input.device,
+            engine: input.engine,
           });
-          break;
 
         default:
           return JSON.stringify({ error: `Unknown tool: ${toolName}` });
       }
-
-      return JSON.stringify(response.data);
     } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        return JSON.stringify({
-          error: error.message,
-          status: error.response?.status,
-          detail: error.response?.data,
-        });
-      }
       return JSON.stringify({ error: String(error) });
     }
   }
