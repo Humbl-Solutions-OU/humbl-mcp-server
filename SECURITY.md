@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability, please **do not** open a public GitHub issue.
 
-Email us directly at: security@humbl.ai
+Email us directly at: info@humbl.ai
 
 Please include:
 - A description of the vulnerability
