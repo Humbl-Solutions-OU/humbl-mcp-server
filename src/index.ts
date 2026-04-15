@@ -7,15 +7,15 @@
 // All tools proxy to the Humbl.ai Django REST API at /api/mcp/advert/.
 //
 // Usage:
-//   npx @humbl-ai/mcp-advert --api-key=YOUR_KEY
-//   npx @humbl-ai/mcp-advert --api-key=YOUR_KEY --api-url=http://localhost:8000
+//   npx @humblai/mcp-server --api-key=YOUR_KEY
+//   npx @humblai/mcp-server --api-key=YOUR_KEY --api-url=http://localhost:8000
 //
 // MCP client config (mcp.json):
 //   {
 //     "mcpServers": {
 //       "humbl-advert": {
 //         "command": "npx",
-//         "args": ["@humbl-ai/mcp-advert", "--api-key=YOUR_KEY"]
+//         "args": ["@humblai/mcp-server", "--api-key=YOUR_KEY"]
 //       }
 //     }
 //   }
@@ -42,7 +42,7 @@ function parseArgs(): { apiKey: string; apiUrl: string } {
       console.error(`
 Humbl.ai Advert MCP Server
 
-Usage: npx @humbl-ai/mcp-advert --api-key=YOUR_KEY [--api-url=URL]
+Usage: npx @humblai/mcp-server --api-key=YOUR_KEY [--api-url=URL]
 
   --api-key=KEY    Your Humbl.ai API key (required)
   --api-url=URL    API base URL (default: https://humbl.ai)
@@ -53,7 +53,7 @@ Usage: npx @humbl-ai/mcp-advert --api-key=YOUR_KEY [--api-url=URL]
 
   if (!apiKey) {
     console.error("Error: --api-key is required");
-    console.error("Usage: npx @humbl-ai/mcp-advert --api-key=YOUR_KEY");
+    console.error("Usage: npx @humblai/mcp-server --api-key=YOUR_KEY");
     process.exit(1);
   }
 

@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "humbl": {
-      "command": "node",
-      "args": ["/path/to/humbl-advert/dist/index.js", "--api-key=your-api-key-here"]
+      "command": "npx",
+      "args": ["@humblai/mcp-server", "--api-key=your-api-key-here"]
     }
   }
 }

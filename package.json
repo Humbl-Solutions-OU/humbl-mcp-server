@@ -1,5 +1,5 @@
 {
-  "name": "@humbl-ai/mcp-advert",
+  "name": "@humblai/mcp-server",
   "version": "1.0.0",
   "description": "MCP server for Humbl.ai advert data — 7 tools for ad research and PPC analysis",
   "main": "dist/index.js",
@@ -20,12 +20,12 @@
     "tsx": "^4.0.0"
   },
   "bin": {
-    "humbl-mcp-advert": "./dist/index.js"
+    "humbl-mcp-server": "./dist/index.js"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   }
 }

@@ -64,23 +64,21 @@ https://humbl.ai/admin/mcp/mcpapikey/
 
 ### Option B: Manual JSON config (Claude Desktop, Cursor, Cline, and others)
 
-**Step 1** — Download the latest release from the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases). The `.mcpb` file is a standard ZIP — rename it to `.zip` and extract it to a permanent location (e.g. `~/humbl-mcp-server/`).
-
-**Step 2** — Make sure Node.js 18+ is installed:
+**Step 1** — Make sure Node.js 18+ is installed:
 ```
 node --version
 ```
 If not installed, get it from [nodejs.org](https://nodejs.org).
 
-**Step 3** — Add this to your MCP config file, replacing the path and API key:
+**Step 2** — Add this to your MCP config file, replacing `your-api-key-here`:
 
 ```json
 {
   "mcpServers": {
     "humbl": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/path/to/humbl-mcp-server/dist/index.js",
+        "@humblai/mcp-server",
         "--api-key=your-api-key-here"
       ]
     }
@@ -97,7 +95,7 @@ If not installed, get it from [nodejs.org](https://nodejs.org).
 | Cursor | Settings → MCP → Edit config |
 | Cline | VS Code settings → Cline → MCP Servers |
 
-**Step 4** — Restart your AI client. The Humbl tools will appear automatically.
+**Step 3** — Restart your AI client. The Humbl tools will appear automatically.
 
 ---
 
@@ -135,14 +133,20 @@ Point your MCP client at the local build:
 
 ### Releases
 
-Push a version tag to trigger the GitHub Actions workflow — it builds the TypeScript, prunes devDependencies, packs the `.mcpb` bundle, and publishes it to GitHub Releases automatically:
+The release workflow runs automatically on version tags. It:
+1. Builds TypeScript
+2. Publishes to npm as `@humblai/mcp-server`
+3. Packs the `.mcpb` bundle
+4. Uploads it to GitHub Releases
+
+**Prerequisites:** Add an `NPM_TOKEN` secret to the GitHub repo (Settings → Secrets → Actions).
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
 
-The `.mcpb` file will appear on the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases) within a few minutes.
+The npm package and `.mcpb` file will be live within a few minutes.
 
 ---
 
