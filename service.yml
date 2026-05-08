@@ -1,0 +1,24 @@
+# service.yml — Service manifest for this repository.
+#
+# Purpose: Machine-readable descriptor of what this service does, where it runs,
+#   who owns it, and what it depends on.
+# Infrastructure repo: This file is consumed by the central inventory at
+#   https://github.com/Humbl-Solutions-OU/infrastructure which aggregates all
+#   service manifests into a single map of the org's running systems.
+#
+# Update this file when servers change, status changes, or ownership changes.
+
+name: humbl-mcp-server
+description: MCP server for AI assistants — lets Claude, Cursor, and Cline query humbl.ai intelligence data in plain English
+status: active
+owner: ekinertac
+
+stack:
+  - python
+  - mcp
+
+depends_on:
+  - humbl.ai (data source API)
+
+notes: |
+  Developer tool — runs locally on each developer's machine, not deployed to a server.
