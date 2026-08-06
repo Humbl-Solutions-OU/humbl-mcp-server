@@ -17,4 +17,4 @@ We'll respond within 48 hours and aim to release a fix within 7 days for critica
 
 Your Humbl.ai API key grants access to your data. Keep it safe:
 - Never commit it to version control
-- Rotate it immediately if compromised at `https://humbl.ai/admin/mcp/mcpapikey/`
+- Ask your Humbl.ai administrator to rotate it immediately if compromised

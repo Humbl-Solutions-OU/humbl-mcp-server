@@ -31,7 +31,7 @@
     "api_key": {
       "type": "string",
       "title": "API Key",
-      "description": "Your Humbl.ai API key. Ask your administrator to generate one at https://humbl.ai/admin/mcp/mcpapikey/",
+      "description": "Your Humbl.ai API key. Ask your Humbl.ai administrator to generate one.",
       "required": true
     }
   },

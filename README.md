@@ -50,25 +50,24 @@ The following modules are planned. Each will add new tools to the same MCP serve
 
 ## Installation
 
-You'll need an API key first — ask your Humbl.ai administrator to generate one at:
-```
-https://humbl.ai/admin/mcp/mcpapikey/
-```
+You'll need an API key first — ask your Humbl.ai administrator to generate one.
 
-### Option A: One-click install via `.mcpb` (Claude Desktop only)
+### Option A: One-click install (Claude Desktop only)
+
+Easiest way in. No terminal, no config files.
 
 1. Go to the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases) and download the latest `humbl-advert-x.x.x.mcpb` file
-2. Double-click the `.mcpb` file — Claude Desktop will launch the installer
-3. Enter your API key when prompted — it's stored securely in your OS keychain
+2. Double-click it — Claude Desktop launches the installer
+3. Paste your API key when prompted — it's stored securely in your OS keychain
 4. Done. The Humbl tools are now available
 
-### Option B: Manual JSON config (Claude Desktop, Cursor, Cline, and others)
+### Option B: npm install + config file (Cursor, Cline, Claude Desktop, and others)
 
-**Step 1** — Make sure Node.js 18+ is installed:
+**Step 1** — Install the server. This needs Node.js 18+ ([get it here](https://nodejs.org) if `node --version` doesn't work):
+
+```bash
+npm install -g @humblai/mcp-server
 ```
-node --version
-```
-If not installed, get it from [nodejs.org](https://nodejs.org).
 
 **Step 2** — Add this to your MCP config file, replacing `your-api-key-here`:
 
@@ -76,9 +75,8 @@ If not installed, get it from [nodejs.org](https://nodejs.org).
 {
   "mcpServers": {
     "humbl": {
-      "command": "npx",
+      "command": "humbl-mcp-server",
       "args": [
-        "@humblai/mcp-server",
         "--api-key=your-api-key-here"
       ]
     }
@@ -99,67 +97,24 @@ If not installed, get it from [nodejs.org](https://nodejs.org).
 
 ---
 
-## For Developers
-
-### Local Development
-
-```bash
-git clone https://github.com/Humbl-Solutions-OU/humbl-mcp-server.git
-cd humbl-mcp-server
-npm install
-npm run build
-```
-
-Run against a local Django server:
-```bash
-npm run dev -- --api-key=your-key --api-url=http://localhost:8000
-```
-
-Point your MCP client at the local build:
-```json
-{
-  "mcpServers": {
-    "humbl": {
-      "command": "node",
-      "args": [
-        "/path/to/humbl-mcp-server/dist/index.js",
-        "--api-key=your-key",
-        "--api-url=http://localhost:8000"
-      ]
-    }
-  }
-}
-```
-
-### Releases
-
-The release workflow runs automatically on version tags. It:
-1. Builds TypeScript
-2. Publishes to npm as `@humblai/mcp-server`
-3. Packs the `.mcpb` bundle
-4. Uploads it to GitHub Releases
-
-**Prerequisites:** Add an `NPM_TOKEN` secret to the GitHub repo (Settings → Secrets → Actions).
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-The npm package and `.mcpb` file will be live within a few minutes.
-
----
-
 ## Troubleshooting
 
 **"--api-key is required"**
 Check that `--api-key=your-key` is in the `args` array in your config.
 
 **"Invalid or inactive API key"**
-Ask your admin to verify the key is active at `/admin/mcp/mcpapikey/`.
+Ask your Humbl.ai administrator to verify the key is active.
 
 **"Connection refused"**
 The Humbl.ai API is unreachable. Check your internet connection or ask your admin if the server is running.
+
+**"humbl-mcp-server: command not found"**
+The install didn't finish, or npm's global folder isn't in your PATH. Re-run `npm install -g @humblai/mcp-server`. If it still fails, run `npm root -g` and point your config at the full path instead:
+
+```json
+"command": "node",
+"args": ["<npm root -g output>/@humblai/mcp-server/dist/index.js", "--api-key=your-api-key-here"]
+```
 
 **"node: command not found"**
 Node.js isn't installed or isn't in your PATH. Reinstall from [nodejs.org](https://nodejs.org).

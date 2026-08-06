@@ -10,3 +10,7 @@ yarn-error.log*
 *.js.map
 .tsbuildinfo
 *.mcpb
+
+# mkdown artifacts (auto-managed)
+SECURITY.html
+README.html
