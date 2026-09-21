@@ -1,13 +1,15 @@
 {
   "name": "@humblai/mcp-server",
-  "version": "1.0.1",
-  "description": "MCP server for Humbl.ai advert data — 7 tools for ad research and PPC analysis",
+  "version": "2.0.0",
+  "description": "MCP server for Humbl.ai intelligence data: adverts, toplists, rankings, games",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "test": "node --import tsx --test src/*.test.ts",
+    "start:http": "node dist/http-main.js"
   },
   "keywords": [
     "mcp",
@@ -15,7 +17,9 @@
     "humbl",
     "advert",
     "ppc",
-    "marketing"
+    "toplists",
+    "rankings",
+    "igaming"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
@@ -26,7 +30,8 @@
     "typescript": "^5.0.0"
   },
   "bin": {
-    "humbl-mcp-server": "./dist/index.js"
+    "humbl-mcp-server": "./dist/index.js",
+    "humbl-mcp-http": "./dist/http-main.js"
   },
   "engines": {
     "node": ">=18.0.0"
