@@ -10,14 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write  # npm trusted publishing (OIDC); no NPM_TOKEN, nothing to expire
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'  # trusted publishing needs npm >= 11.5.1 / Node >= 22.14
           registry-url: 'https://registry.npmjs.org'
+
+      # Pin the floor explicitly: the npm bundled with a given Node 24.x may lag.
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@^11.5.1
 
       - name: Install dependencies
         run: npm ci
@@ -27,8 +32,6 @@ jobs:
 
       - name: Publish to npm
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Prune devDependencies before packing
         run: npm prune --production
