@@ -30,8 +30,8 @@
     "typescript": "^5.0.0"
   },
   "bin": {
-    "humbl-mcp-server": "./dist/index.js",
-    "humbl-mcp-http": "./dist/http-main.js"
+    "humbl-mcp-server": "dist/index.js",
+    "humbl-mcp-http": "dist/http-main.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -39,5 +39,9 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Humbl-Solutions-OU/humbl-mcp-server.git"
   }
 }
