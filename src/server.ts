@@ -7,7 +7,7 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { ToolSet } from "./modules.js";
 
-export const SERVER_INFO = { name: "humbl", version: "2.0.0" };
+export const SERVER_INFO = { name: "humbl", version: "2.0.1" };
 
 export function createServer(toolSet: ToolSet, name = SERVER_INFO.name): Server {
   const server = new Server({ name, version: SERVER_INFO.version }, { capabilities: { tools: {} } });

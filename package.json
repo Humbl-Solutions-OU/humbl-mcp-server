@@ -1,6 +1,6 @@
 {
   "name": "@humblai/mcp-server",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "MCP server for Humbl.ai intelligence data: adverts, toplists, rankings, games",
   "main": "dist/index.js",
   "type": "module",
@@ -30,6 +30,7 @@
     "typescript": "^5.0.0"
   },
   "bin": {
+    "mcp-server": "dist/index.js",
     "humbl-mcp-server": "dist/index.js",
     "humbl-mcp-http": "dist/http-main.js"
   },
