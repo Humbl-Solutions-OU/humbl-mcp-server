@@ -18,33 +18,53 @@ The assistant handles the rest — it knows which tool to use and how to interpr
 
 ## Available Modules
 
-### Adverts ✅ Available now
+One server, four modules. Connect to all of them or pick a subset.
 
-PPC and paid media intelligence tools.
+### Adverts
 
 | Tool | What It Does |
 |---|---|
-| **Market Share** | Top 50 domains by ad exposure for a location |
-| **Competitors** | Who's advertising for a keyword, where, and on which device |
-| **Domain Data** | Full ad exposure history for a specific domain |
-| **PPC Overview** | Recently detected PPC sites for a location |
-| **Brand Lookup** | Has a specific brand appeared in ads in the last 24 hours? |
-| **General Search** | Search the ad database by domain or keyword (last 14 days) |
-| **Live Search** | Real-time ad results — not cached, pulled fresh from the web |
+| **market_share** | Top 50 domains by ad exposure for a location |
+| **competitors** | Who's advertising for a keyword, where, and on which device |
+| **domain_data** | Full ad exposure history for a specific domain |
+| **ppc_overview** | Recently detected PPC sites for a location |
+| **brand_lookup** | Has a specific brand appeared in ads in the last 24 hours? |
+| **general_search** | Search the ad database by domain or keyword (last 14 days) |
+| **live_search** | Real-time ad results, pulled fresh from the web |
 
----
+### Toplists
 
-## Roadmap
-
-The following modules are planned. Each will add new tools to the same MCP server — no reconfiguration needed when they ship.
-
-| Module | What It Will Cover |
+| Tool | What It Does |
 |---|---|
-| **Top Lists** | SEO and organic search intelligence — top domains, keyword rankings, visibility trends |
-| **Rankings** | Keyword rank tracking — monitor position changes over time for any domain |
-| **Brand Monitoring** | Brand health tracking — mentions, share of voice, competitor movements |
-| **Compliance** | Regulatory monitoring — detect unlicensed operators, flag policy violations |
-| **Game Providers** | Gaming industry intelligence — provider market share, game distribution data |
+| **query_toplist_market_share** | Brand share across affiliate toplists per market (default / licensed / unlicensed / sports / casino) |
+| **query_toplist_positions** | Where a brand is listed on affiliate sites, or what a site lists |
+| **query_toplist_sites** | Affiliate sites we track, by market, vertical, page type |
+| **query_toplist_brands** | Resolve a brand name and its aliases |
+| **explore_toplist_schema** | Valid countries, filter types, verticals, page types |
+
+### Rankings
+
+| Tool | What It Does |
+|---|---|
+| **query_rankings_locations** | Find a location_id |
+| **query_rankings_keywords** | Find a keyword_id |
+| **query_rankings_top_domains** | Who ranks for a keyword in a location |
+| **query_rankings_domain_monitor** | Position history of one domain for one keyword |
+| **query_rankings_domain_traffic** | Estimated search traffic for a domain |
+| **query_rankings_domain_top_keywords** | What a domain ranks for |
+
+### Games
+
+| Tool | What It Does |
+|---|---|
+| **query_games_data** | Game positions and rankings across casino lobbies |
+| **get_game_metadata** | Supplier, release date, RTP and other facts about a game |
+| **explore_games_schema** | Valid countries, operators, suppliers, sections |
+| **query_market_analytics** | GGR estimates and market share |
+| **query_new_games** | Newly released / first-seen games |
+| **query_compliance** | Licensing status of games and suppliers per market |
+
+Toplists, rankings and games tools are defined on the humbl.ai side and discovered at startup; new tools there show up here without an update.
 
 ---
 
@@ -52,7 +72,29 @@ The following modules are planned. Each will add new tools to the same MCP serve
 
 You'll need an API key first — ask your Humbl.ai administrator to generate one.
 
-### Option A: One-click install (Claude Desktop only)
+### Option A: Remote server (claude.ai web, Claude mobile, Cursor, anything that supports remote MCP)
+
+No install. Add a remote MCP server (also called a "connector" or "integration") in your client with:
+
+| Field | Value |
+|---|---|
+| URL | `https://mcp.humbl.ai/all` (or `/advert`, `/toplists`, `/rankings`, `/games` for one module) |
+| Auth | Bearer token = your Humbl.ai API key |
+
+For clients that take a config file:
+
+```json
+{
+  "mcpServers": {
+    "humbl": {
+      "url": "https://mcp.humbl.ai/all",
+      "headers": { "Authorization": "Bearer your-api-key-here" }
+    }
+  }
+}
+```
+
+### Option B: One-click install (Claude Desktop only)
 
 Easiest way in. No terminal, no config files.
 
@@ -61,7 +103,7 @@ Easiest way in. No terminal, no config files.
 3. Paste your API key when prompted — it's stored securely in your OS keychain
 4. Done. The Humbl tools are now available
 
-### Option B: npm install + config file (Cursor, Cline, Claude Desktop, and others)
+### Option C: npm install + config file (Cursor, Cline, Claude Desktop, and others)
 
 **Step 1** — Install the server. This needs Node.js 18+ ([get it here](https://nodejs.org) if `node --version` doesn't work):
 
@@ -83,6 +125,8 @@ npm install -g @humblai/mcp-server
   }
 }
 ```
+
+Add `"--modules=advert,toplists"` to the args to load a subset.
 
 **Config file locations:**
 

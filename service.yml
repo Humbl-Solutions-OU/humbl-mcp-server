@@ -14,11 +14,20 @@ status: active
 owner: ekinertac
 
 stack:
-  - python
+  - node
+  - typescript
   - mcp
 
 depends_on:
   - humbl.ai (data source API)
 
+servers:
+  - name: humbl-mcp
+    provider: hetzner
+    role: remote MCP server (Streamable HTTP) at https://mcp.humbl.ai
+
 notes: |
-  Developer tool — runs locally on each developer's machine, not deployed to a server.
+  Two entry points from one codebase: the npm package / .mcpb bundle run on each
+  user's machine over stdio; the same code runs as a remote HTTP server on the
+  Hetzner box for claude.ai web, mobile and connector directories. Both are
+  stateless proxies to the humbl.ai API; the only credential is the user's key.
