@@ -5,11 +5,14 @@
 //
 // Used by both entry points: index.ts (stdio) and http.ts (remote).
 
+import { assistantHeaders } from "./modules.js";
+
 // Wraps all Humbl API calls. Each method maps to one Django endpoint.
 // Uses native fetch (Node 18+) — no external HTTP dependency needed.
 export class HumblAdvertClient {
   private baseUrl: string;
   private headers: Record<string, string>;
+  private assistant?: string;
 
   constructor(apiKey: string, apiUrl: string) {
     this.baseUrl = `${apiUrl}/api/mcp/advert`;
@@ -29,7 +32,7 @@ export class HumblAdvertClient {
 
     const url = `${this.baseUrl}${path}${query ? `?${query}` : ""}`;
 
-    const response = await fetch(url, { headers: this.headers });
+    const response = await fetch(url, { headers: { ...this.headers, ...assistantHeaders(this.assistant) } });
     const data = await response.json();
 
     if (!response.ok) {
@@ -39,7 +42,10 @@ export class HumblAdvertClient {
     return JSON.stringify(data);
   }
 
-  async call(toolName: string, input: Record<string, unknown>): Promise<string> {
+  async call(toolName: string, input: Record<string, unknown>, assistant?: string): Promise<string> {
+    // One client per ToolSet, and a ToolSet serves one caller (one HTTP
+    // request remotely, one MCP client on stdio), so a field is safe here.
+    this.assistant = assistant;
     try {
       switch (toolName) {
         case "market_share":
