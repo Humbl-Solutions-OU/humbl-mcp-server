@@ -31,10 +31,19 @@ export class UpstreamError extends Error {
 const TOOL_LIST_TTL_MS = 5 * 60 * 1000;
 const toolListCache = new Map<string, { at: number; tools: McpTool[] }>();
 
-async function djangoJson(url: string, apiKey: string, init: RequestInit = {}): Promise<unknown> {
+// X-MCP-Client tells humbl.ai which AI client made a tool call (telemetry only;
+// it grants nothing). Capped like the Django field.
+export function assistantHeaders(assistant?: string): Record<string, string> {
+  return assistant ? { "X-MCP-Client": assistant.slice(0, 64) } : {};
+}
+
+async function djangoJson(url: string, apiKey: string, init: RequestInit = {}, assistant?: string): Promise<unknown> {
   const response = await fetch(url, {
     ...init,
-    headers: { "X-Api-Key": apiKey, "Content-Type": "application/json", ...(init.headers ?? {}) },
+    headers: {
+      "X-Api-Key": apiKey, "Content-Type": "application/json",
+      ...assistantHeaders(assistant), ...(init.headers ?? {}),
+    },
   });
   let data: unknown;
   try {
@@ -62,12 +71,13 @@ export async function callModuleTool(
   module: string,
   name: string,
   args: Record<string, unknown>,
-  apiKey: string
+  apiKey: string,
+  assistant?: string
 ): Promise<string> {
   const data = (await djangoJson(`${apiUrl}/api/mcp/${module}/tools/${name}/`, apiKey, {
     method: "POST",
     body: JSON.stringify(args),
-  })) as { result: string };
+  }, assistant)) as { result: string };
   return data.result;
 }
 
@@ -75,7 +85,7 @@ export async function callModuleTool(
 // each tool name, how to run it. Built per request on the remote server.
 export interface ToolSet {
   tools: McpTool[];
-  call(name: string, args: Record<string, unknown>): Promise<string>;
+  call(name: string, args: Record<string, unknown>, assistant?: string): Promise<string>;
 }
 
 export async function buildToolSet(apiUrl: string, modules: readonly Module[], apiKey: string): Promise<ToolSet> {
@@ -91,11 +101,11 @@ export async function buildToolSet(apiUrl: string, modules: readonly Module[], a
   const advert = new HumblAdvertClient(apiKey, apiUrl);
   return {
     tools,
-    async call(name, args) {
+    async call(name, args, assistant) {
       const module = owners.get(name);
       if (!module) throw new UpstreamError(404, `Unknown tool: ${name}`);
-      if (module === "advert") return advert.call(name, args);
-      return callModuleTool(apiUrl, module, name, args, apiKey);
+      if (module === "advert") return advert.call(name, args, assistant);
+      return callModuleTool(apiUrl, module, name, args, apiKey, assistant);
     },
   };
 }

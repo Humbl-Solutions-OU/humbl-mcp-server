@@ -14,7 +14,9 @@ const KEY = "k1";
 let django: http.Server;
 let mcp: http.Server;
 let mcpUrl: string;
-const djangoCalls: { method: string; url: string; key: string | undefined; body: string }[] = [];
+const djangoCalls: {
+  method: string; url: string; key: string | undefined; body: string; assistant: string | undefined;
+}[] = [];
 
 function readBody(req: http.IncomingMessage): Promise<string> {
   return new Promise((resolve) => {
@@ -28,7 +30,10 @@ before(async () => {
   django = http.createServer(async (req, res) => {
     const body = await readBody(req);
     const key = req.headers["x-api-key"] as string | undefined;
-    djangoCalls.push({ method: req.method!, url: req.url!, key, body });
+    djangoCalls.push({
+      method: req.method!, url: req.url!, key, body,
+      assistant: req.headers["x-mcp-client"] as string | undefined,
+    });
     const json = (status: number, data: unknown) => {
       res.writeHead(status, { "Content-Type": "application/json" });
       res.end(JSON.stringify(data));
@@ -63,9 +68,10 @@ after(() => {
   django.close();
 });
 
-async function connect(path: string, key: string | undefined = KEY) {
+async function connect(path: string, key: string | undefined = KEY, userAgent?: string) {
   const client = new Client({ name: "test", version: "0" });
   const headers: Record<string, string> = key ? { Authorization: `Bearer ${key}` } : {};
+  if (userAgent) headers["User-Agent"] = userAgent;
   const transport = new StreamableHTTPClientTransport(new URL(mcpUrl + path), { requestInit: { headers } });
   await client.connect(transport);
   return client;
@@ -151,6 +157,17 @@ test("invalid key surfaces Django's 401", async () => {
 test("unknown module is 404", async () => {
   const res = await rawPost("/nope", KEY);
   assert.equal(res.status, 404);
+});
+
+test("tool calls tell Django which assistant called, from the User-Agent's first word", async () => {
+  const client = await connect("/all", KEY, "claude-code/2.1.309 (claude-desktop, agent-sdk/0.3.309)");
+  await client.callTool({ name: "echo", arguments: { text: "a" } });
+  await client.callTool({ name: "market_share", arguments: { location_id: 2 } });
+  await client.close();
+  const echo = djangoCalls.filter((c) => c.url === "/api/mcp/toplists/tools/echo/").at(-1)!;
+  const advert = djangoCalls.filter((c) => c.url.startsWith("/api/mcp/advert/market-share/?location_id=2")).at(-1)!;
+  assert.equal(echo.assistant, "claude-code");
+  assert.equal(advert.assistant, "claude-code");
 });
 
 test("health endpoint needs no auth", async () => {
