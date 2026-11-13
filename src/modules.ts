@@ -71,6 +71,18 @@ export async function callModuleTool(
   return data.result;
 }
 
+// Advert's tools are the static list in advert.ts, but the key must still be
+// checked before they are listed: without this, /advert listed all 7 tools for
+// any bearer token, while the other modules rejected it. Django answers GET
+// /api/mcp/advert/tools/ with 200 and an empty list for a key that has ads, and
+// 401 or 403 otherwise. Any other answer, including a 404 from an older Django,
+// throws, so a moved route fails closed instead of open. Cached per key with
+// the other modules' lists.
+async function advertTools(apiUrl: string, apiKey: string): Promise<McpTool[]> {
+  await listModuleTools(apiUrl, "advert", apiKey);
+  return ADVERT_TOOLS as McpTool[];
+}
+
 // A resolved view over one or more modules: the tools to advertise and, for
 // each tool name, how to run it. Built per request on the remote server.
 export interface ToolSet {
@@ -82,7 +94,7 @@ export async function buildToolSet(apiUrl: string, modules: readonly Module[], a
   const tools: McpTool[] = [];
   const owners = new Map<string, Module>();
   for (const module of modules) {
-    const moduleTools = module === "advert" ? (ADVERT_TOOLS as McpTool[]) : await listModuleTools(apiUrl, module, apiKey);
+    const moduleTools = module === "advert" ? await advertTools(apiUrl, apiKey) : await listModuleTools(apiUrl, module, apiKey);
     for (const tool of moduleTools) {
       tools.push(tool);
       owners.set(tool.name, module);
