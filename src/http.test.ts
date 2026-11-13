@@ -11,6 +11,8 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { startHttpServer } from "./http.js";
 
 const KEY = "k1";
+const NO_ADS = "k-no-ads";
+const OLD_DJANGO = "k-old-django";
 let django: http.Server;
 let mcp: http.Server;
 let mcpUrl: string;
@@ -33,8 +35,17 @@ before(async () => {
       res.writeHead(status, { "Content-Type": "application/json" });
       res.end(JSON.stringify(data));
     };
-    if (key !== KEY) return json(401, { detail: "Invalid or inactive MCP API key." });
     const url = req.url!;
+    // NO_ADS: a real key whose client has no ads subscription.
+    if (key === NO_ADS && url === "/api/mcp/advert/tools/") {
+      return json(403, { detail: "This API key's account does not include the 'advert' module." });
+    }
+    // OLD_DJANGO: a Django from before the advert key check, which 404s here.
+    if (key === OLD_DJANGO && url === "/api/mcp/advert/tools/") {
+      return json(404, { detail: "Unknown MCP module 'advert'" });
+    }
+    if (key !== KEY) return json(401, { detail: "Invalid or inactive MCP API key." });
+    if (url === "/api/mcp/advert/tools/") return json(200, { tools: [] });
     if (url === "/api/mcp/rankings/tools/" || url === "/api/mcp/games/tools/") return json(200, { tools: [] });
     if (url === "/api/mcp/toplists/tools/") {
       return json(200, {
@@ -145,6 +156,28 @@ test("missing bearer token is rejected with 401 before touching Django", async (
 
 test("invalid key surfaces Django's 401", async () => {
   const res = await rawPost("/toplists", "wrong");
+  assert.equal(res.status, 401);
+});
+
+// /advert used to list its 7 static tools for any bearer token.
+test("advert rejects a fake key with 401 instead of listing tools", async () => {
+  const res = await rawPost("/advert", "fake123");
+  assert.equal(res.status, 401);
+  assert.ok(djangoCalls.some((c) => c.url === "/api/mcp/advert/tools/" && c.key === "fake123"));
+});
+
+test("advert rejects a key without ads with 403", async () => {
+  const res = await rawPost("/advert", NO_ADS);
+  assert.equal(res.status, 403);
+});
+
+test("advert fails closed when Django can't confirm the key", async () => {
+  const res = await rawPost("/advert", OLD_DJANGO);
+  assert.equal(res.status, 502);
+});
+
+test("/all rejects a fake key too", async () => {
+  const res = await rawPost("/all", "fake123");
   assert.equal(res.status, 401);
 });
 

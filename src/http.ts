@@ -72,7 +72,11 @@ export function startHttpServer(options: HttpOptions): Promise<http.Server> {
       await server.connect(transport);
       await transport.handleRequest(req, res);
     } catch (error: unknown) {
-      if (error instanceof UpstreamError) return reject(res, error.status === 401 ? 401 : 502, error.message);
+      // 401 bad key and 403 module not in the client's plan are the caller's
+      // problem and keep their status; anything else from Django is ours (502).
+      if (error instanceof UpstreamError) {
+        return reject(res, error.status === 401 || error.status === 403 ? error.status : 502, error.message);
+      }
       console.error("Unhandled error", error);
       if (!res.headersSent) reject(res, 500, "Internal error");
     }
