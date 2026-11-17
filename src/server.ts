@@ -7,7 +7,7 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import type { ToolSet } from "./modules.js";
 
-export const SERVER_INFO = { name: "humbl", version: "2.0.1" };
+export const SERVER_INFO = { name: "humbl", version: "2.1.0" };
 
 export interface ServerOptions {
   // Which AI client is calling, for humbl.ai's telemetry. The remote server
