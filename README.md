@@ -81,6 +81,8 @@ No install. Add a remote MCP server (also called a "connector" or "integration")
 | URL | `https://mcp.humbl.ai/all` (or `/advert`, `/toplists`, `/rankings`, `/games` for one module) |
 | Auth | Bearer token = your Humbl.ai API key |
 
+On claude.ai, this needs the **Request headers** option of Claude's custom connector, which Anthropic has in beta for some organizations only. If you have it: **Customize > Connectors > + Add > Add custom connector**, URL as above, authentication **No sign-in**, request header `authorization` with the value `Bearer your-api-key-here`. If you don't, use Option B on Claude Desktop.
+
 For clients that take a config file:
 
 ```json
@@ -98,10 +100,13 @@ For clients that take a config file:
 
 Easiest way in. No terminal, no config files.
 
-1. Go to the [Releases page](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases) and download the latest `humbl-advert-x.x.x.mcpb` file
-2. Double-click it — Claude Desktop launches the installer
-3. Paste your API key when prompted — it's stored securely in your OS keychain
-4. Done. The Humbl tools are now available
+1. Download `humbl-mcp-server.mcpb` from the [latest release](https://github.com/Humbl-Solutions-OU/humbl-mcp-server/releases/latest)
+2. In Claude Desktop, open **Settings > Extensions** (in some versions **Settings > Desktop app**, then **Manage** next to Extensions)
+3. Select **Advanced settings**, then **Install Extension…** in the **Extension Developer** section, and choose the file
+4. Paste your API key in the **API Key** field, select **Save**, and check that the extension is **Enabled**
+5. In a chat, select **+ > Connectors** to see the Humbl tools
+
+The extension loads every module your key allows. Versions before 2.1.0 stopped at startup ("Unable to connect to extension server") when the key did not include all four modules; install the latest file to fix that.
 
 ### Option C: npm install + config file (Cursor, Cline, Claude Desktop, and others)
 
