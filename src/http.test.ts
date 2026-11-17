@@ -13,6 +13,8 @@ import { startHttpServer } from "./http.js";
 const KEY = "k1";
 const NO_ADS = "k-no-ads";
 const OLD_DJANGO = "k-old-django";
+const NO_GAMES = "k-no-games";
+const NO_PLAN = "k-no-plan";
 let django: http.Server;
 let mcp: http.Server;
 let mcpUrl: string;
@@ -40,11 +42,19 @@ before(async () => {
     if (key === NO_ADS && url === "/api/mcp/advert/tools/") {
       return json(403, { detail: "This API key's account does not include the 'advert' module." });
     }
+    // NO_GAMES: a real key whose client has every module except games.
+    if (key === NO_GAMES && url === "/api/mcp/games/tools/") {
+      return json(403, { detail: "This API key's account does not include the 'games' module." });
+    }
+    // NO_PLAN: a real key whose client has none of the modules.
+    if (key === NO_PLAN && url.endsWith("/tools/")) {
+      return json(403, { detail: "This API key's account does not include this module." });
+    }
     // OLD_DJANGO: a Django from before the advert key check, which 404s here.
     if (key === OLD_DJANGO && url === "/api/mcp/advert/tools/") {
       return json(404, { detail: "Unknown MCP module 'advert'" });
     }
-    if (key !== KEY) return json(401, { detail: "Invalid or inactive MCP API key." });
+    if (key !== KEY && key !== NO_GAMES) return json(401, { detail: "Invalid or inactive MCP API key." });
     if (url === "/api/mcp/advert/tools/") return json(200, { tools: [] });
     if (url === "/api/mcp/rankings/tools/" || url === "/api/mcp/games/tools/") return json(200, { tools: [] });
     if (url === "/api/mcp/toplists/tools/") {
@@ -179,6 +189,26 @@ test("advert fails closed when Django can't confirm the key", async () => {
 test("/all rejects a fake key too", async () => {
   const res = await rawPost("/all", "fake123");
   assert.equal(res.status, 401);
+});
+
+// A client without games used to crash the .mcpb bundle at startup: it loads
+// every module, and the games 403 was fatal.
+test("/all skips a module the key's plan doesn't include", async () => {
+  const client = await connect("/all", NO_GAMES);
+  const { tools } = await client.listTools();
+  const names = tools.map((t) => t.name);
+  assert.ok(names.includes("market_share") && names.includes("echo"));
+  await client.close();
+});
+
+test("a single module outside the plan still reports 403", async () => {
+  const res = await rawPost("/games", NO_GAMES);
+  assert.equal(res.status, 403);
+});
+
+test("/all with no module in the plan reports 403", async () => {
+  const res = await rawPost("/all", NO_PLAN);
+  assert.equal(res.status, 403);
 });
 
 test("unknown module is 404", async () => {

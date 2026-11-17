@@ -93,13 +93,33 @@ export interface ToolSet {
 export async function buildToolSet(apiUrl: string, modules: readonly Module[], apiKey: string): Promise<ToolSet> {
   const tools: McpTool[] = [];
   const owners = new Map<string, Module>();
+  let loaded = 0;
+  let denied: UpstreamError | undefined;
   for (const module of modules) {
-    const moduleTools = module === "advert" ? await advertTools(apiUrl, apiKey) : await listModuleTools(apiUrl, module, apiKey);
+    let moduleTools: McpTool[];
+    try {
+      moduleTools = module === "advert" ? await advertTools(apiUrl, apiKey) : await listModuleTools(apiUrl, module, apiKey);
+    } catch (error) {
+      // A multi-module set (stdio default, the .mcpb bundle, remote /all) holds
+      // every module, but most clients pay for only some. Django answers 403
+      // for a module outside the plan; skip it and serve the rest. Throwing
+      // here killed the stdio process at startup, so Claude Desktop showed
+      // "Unable to connect" for any client without all four modules. A single
+      // module asked for by name still reports its 403, and a bad key (401)
+      // or a Django failure always throws.
+      if (modules.length > 1 && error instanceof UpstreamError && error.status === 403) {
+        denied = error;
+        continue;
+      }
+      throw error;
+    }
+    loaded++;
     for (const tool of moduleTools) {
       tools.push(tool);
       owners.set(tool.name, module);
     }
   }
+  if (loaded === 0 && denied) throw denied; // no module in the plan at all
   const advert = new HumblAdvertClient(apiKey, apiUrl);
   return {
     tools,
