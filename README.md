@@ -58,7 +58,7 @@ One server, four modules. Connect to all of them or pick a subset.
 | Tool | What It Does |
 |---|---|
 | **query_games_data** | Game positions and rankings across casino lobbies |
-| **get_game_metadata** | Supplier, release date, RTP and other facts about a game |
+| **get_game_metadata** | Catalog lookups: a game's supplier, a supplier's games, operators, totals |
 | **explore_games_schema** | Valid countries, operators, suppliers, sections |
 | **query_market_analytics** | GGR estimates and market share |
 | **query_new_games** | Newly released / first-seen games |

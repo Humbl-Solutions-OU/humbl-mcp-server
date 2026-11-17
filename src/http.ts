@@ -39,6 +39,14 @@ function modulesFor(path: string): readonly Module[] | undefined {
   return (MODULES as readonly string[]).includes(name) ? [name as Module] : undefined;
 }
 
+// The product name of the caller's User-Agent, for humbl.ai telemetry:
+// "claude-code/2.1.309 (claude-desktop, ...)" -> "claude-code". Stateless HTTP
+// requests carry no MCP handshake, so this is the only hint on the remote path.
+function assistantFromUserAgent(userAgent: string | undefined): string | undefined {
+  const product = userAgent?.trim().split(/[\/\s]/, 1)[0];
+  return product || undefined;
+}
+
 function reject(res: http.ServerResponse, status: number, message: string) {
   res.writeHead(status, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ jsonrpc: "2.0", error: { code: -32000, message }, id: null }));
@@ -63,7 +71,9 @@ export function startHttpServer(options: HttpOptions): Promise<http.Server> {
 
     try {
       const toolSet = await buildToolSet(options.apiUrl, modules, apiKey);
-      const server = createServer(toolSet, modules.length === 1 ? `humbl-${modules[0]}` : "humbl");
+      const server = createServer(toolSet, modules.length === 1 ? `humbl-${modules[0]}` : "humbl", {
+        assistant: assistantFromUserAgent(req.headers["user-agent"]),
+      });
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       res.on("close", () => {
         transport.close();

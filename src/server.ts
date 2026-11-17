@@ -9,14 +9,24 @@ import type { ToolSet } from "./modules.js";
 
 export const SERVER_INFO = { name: "humbl", version: "2.0.1" };
 
-export function createServer(toolSet: ToolSet, name = SERVER_INFO.name): Server {
+export interface ServerOptions {
+  // Which AI client is calling, for humbl.ai's telemetry. The remote server
+  // passes the caller's User-Agent product name; stdio leaves it unset and the
+  // MCP client's handshake name (clientInfo.name) is used instead.
+  assistant?: string;
+}
+
+export function createServer(toolSet: ToolSet, name = SERVER_INFO.name, options: ServerOptions = {}): Server {
   const server = new Server({ name, version: SERVER_INFO.version }, { capabilities: { tools: {} } });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: toolSet.tools }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     try {
-      const text = await toolSet.call(request.params.name, (request.params.arguments ?? {}) as Record<string, unknown>);
+      const assistant = options.assistant || server.getClientVersion()?.name;
+      const text = await toolSet.call(
+        request.params.name, (request.params.arguments ?? {}) as Record<string, unknown>, assistant,
+      );
       return { content: [{ type: "text", text }] };
     } catch (error: unknown) {
       return { content: [{ type: "text", text: String(error instanceof Error ? error.message : error) }], isError: true };
