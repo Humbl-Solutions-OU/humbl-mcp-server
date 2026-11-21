@@ -72,6 +72,10 @@
       "description": "Recently detected PPC sites for a location"
     },
     {
+      "name": "blackhat_screenshots",
+      "description": "Screenshot links of a PPC site from the last 30 days"
+    },
+    {
       "name": "brand_lookup",
       "description": "Recent brand appearances in ad listings"
     },

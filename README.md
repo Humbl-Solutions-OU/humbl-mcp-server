@@ -28,6 +28,7 @@ One server, four modules. Connect to all of them or pick a subset.
 | **competitors** | Who's advertising for a keyword, where, and on which device |
 | **domain_data** | Full ad exposure history for a specific domain |
 | **ppc_overview** | Recently detected PPC sites for a location |
+| **blackhat_screenshots** | Screenshot links of one PPC site from the last 30 days, uncloaked and public page |
 | **brand_lookup** | Has a specific brand appeared in ads in the last 24 hours? |
 | **general_search** | Search the ad database by domain or keyword (last 14 days) |
 | **live_search** | Real-time ad results, pulled fresh from the web |
