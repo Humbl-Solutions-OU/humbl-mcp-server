@@ -1,5 +1,5 @@
 // The advert module's MCP tools. These predate the generic /api/mcp/<module>/tools/
-// endpoints: Django exposes seven hand-written GET views under /api/mcp/advert/,
+// endpoints: Django exposes eight hand-written GET views under /api/mcp/advert/,
 // so the tool schemas live here and each tool maps to one view. New modules do
 // not follow this pattern; see modules.ts.
 //
@@ -67,6 +67,14 @@ export class HumblAdvertClient {
           return this.get("/ppc-overview/", {
             location_id: input.location_id,
             order_by: input.order_by ?? "newest",
+          });
+
+        case "blackhat_screenshots":
+          return this.get("/blackhat-screenshots/", {
+            site_id: input.site_id,
+            date_from: input.date_from,
+            date_to: input.date_to,
+            limit: input.limit,
           });
 
         case "brand_lookup":
@@ -152,6 +160,21 @@ export const ADVERT_TOOLS = [
         },
       },
       required: ["location_id"],
+    },
+  },
+  {
+    name: "blackhat_screenshots",
+    description:
+      "Get screenshot links of one blackhat PPC site from the last 30 days, newest first. Each uncloak run has an 'uncloaked' image (the page the site's ads target) and a 'public' image (the page shown to everyone else), each as a full-size URL and a thumbnail URL. If an uncloak failed, its 'uncloaked' image can show the public page. 'results' holds only the newest 'limit' runs (default 10); 'total_runs' counts every run in the window, so use date_from/date_to to see older ones. Take site_id from the 'id' field of ppc_overview results.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        site_id: { type: "number", description: "Blackhat PPC site ID (the 'id' in ppc_overview results)" },
+        date_from: { type: "string", description: "Optional first day, YYYY-MM-DD (UTC), within the last 30 days" },
+        date_to: { type: "string", description: "Optional last day, YYYY-MM-DD (UTC), inclusive" },
+        limit: { type: "number", description: "How many runs to return, 1-50 (default: 10)" },
+      },
+      required: ["site_id"],
     },
   },
   {

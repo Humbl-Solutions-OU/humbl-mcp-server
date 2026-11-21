@@ -73,6 +73,7 @@ before(async () => {
     if (url === "/api/mcp/toplists/tools/echo/") return json(200, { result: `echo:${JSON.parse(body).text}` });
     if (url === "/api/mcp/toplists/tools/boom/") return json(500, { detail: "kaboom" });
     if (url.startsWith("/api/mcp/advert/market-share/")) return json(200, [{ domain: "x.com", percentage: 1 }]);
+    if (url.startsWith("/api/mcp/advert/blackhat-screenshots/")) return json(200, { site_id: 7, results: [] });
     return json(404, { detail: "nope" });
   });
   await new Promise<void>((r) => django.listen(0, "127.0.0.1", r));
@@ -127,11 +128,21 @@ test("Django failure comes back as an MCP tool error, not a transport error", as
 test("advert keeps its static tool set and GET-style proxying", async () => {
   const client = await connect("/advert");
   const { tools } = await client.listTools();
-  assert.equal(tools.length, 7);
+  assert.equal(tools.length, 8);
   const result = await client.callTool({ name: "market_share", arguments: { location_id: 1 } });
   assert.match((result.content as { text: string }[])[0].text, /x\.com/);
   const call = djangoCalls.find((c) => c.url.startsWith("/api/mcp/advert/market-share/"))!;
   assert.equal(call.url, "/api/mcp/advert/market-share/?location_id=1");
+  await client.close();
+});
+
+test("blackhat_screenshots forwards only the params it was given", async () => {
+  // The URL path must match Django's URL name (blackhat-screenshots): MCP
+  // telemetry records the tool under that name.
+  const client = await connect("/advert");
+  await client.callTool({ name: "blackhat_screenshots", arguments: { site_id: 7, limit: 3 } });
+  const call = djangoCalls.find((c) => c.url.startsWith("/api/mcp/advert/blackhat-screenshots/"))!;
+  assert.equal(call.url, "/api/mcp/advert/blackhat-screenshots/?site_id=7&limit=3");
   await client.close();
 });
 
